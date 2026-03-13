@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creovator Studio | Record Your Podcast</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2471F7;   
+            --dark: #022463;      
+            --grey: #5F5F5F;      
+            --bg: #000000; 
+            --surface: #0a0a0a;
+            --text: #ffffff;
+            --muted: #888888;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.6; 
+            overflow-x: hidden;
+            cursor: none; 
+        }
+
+        #cursor { position: fixed; width: 8px; height: 8px; background: white; border-radius: 50%; pointer-events: none; z-index: 9999; }
+        #cursor-f { position: fixed; width: 35px; height: 35px; border: 1px solid var(--primary); border-radius: 50%; pointer-events: none; z-index: 9998; transition: transform 0.1s linear; }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 5%; }
+
+        /* --- NAV & LOGO --- */
+        nav { padding: 30px 0; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; background: linear-gradient(to bottom, black, transparent); }
+        
+        .logo-box { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px 18px 8px 8px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo-icon { 
+            width: 45px; height: 45px; 
+            background: #fff; 
+            border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .logo-icon img { width: 85%; height: 85%; object-fit: contain; }
+        .logo { font-weight: 900; font-size: 1.3rem; letter-spacing: -0.5px; text-transform: uppercase; }
+        .logo span { color: var(--primary); }
+
+        /* --- HERO --- */
+        .hero { min-height: 100vh; display: flex; align-items: center; padding-top: 120px; }
+        .hero-split { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; }
+
+        .badge { 
+            background: var(--dark); color: var(--primary); padding: 8px 16px; 
+            font-weight: 700; border-radius: 100px; display: inline-block; 
+            margin-bottom: 25px; font-size: 0.7rem; text-transform: uppercase;
+            border: 1px solid var(--primary);
+        }
+
+        h1 { font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 900; line-height: 0.9; margin-bottom: 30px; letter-spacing: -3px; }
+        h1 span { -webkit-text-stroke: 1px var(--text); color: transparent; }
+
+        #booking-form { 
+            background: #050505; 
+            padding: 40px; border-radius: 35px; border: 1px solid var(--border);
+            position: relative; overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0,0,0,1);
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input, select, textarea { 
+            width: 100%; padding: 15px; background: #111; 
+            border: 1px solid var(--border); border-radius: 12px; color: #fff; font-family: inherit;
+        }
+
+        .btn-main { 
+            width: 100%; padding: 20px; background: var(--primary); border: none; 
+            border-radius: 12px; font-weight: 900; text-transform: uppercase; color: white;
+            cursor: pointer; margin-top: 20px;
+        }
+
+        /* --- BENTO BOXES WITH HOVER IMAGES --- */
+        .section { padding: 120px 0; }
+        .bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        
+        .feature-card { 
+            background: #080808; padding: 60px 40px; border-radius: 35px; 
+            border: 1px solid var(--border); position: relative; overflow: hidden;
+            transition: 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+            z-index: 1;
+        }
+
+        .feature-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: 0.6s ease;
+            z-index: -1;
+            filter: brightness(0.3) saturate(0.6);
+            transform: scale(1.1);
+        }
+
+        /* UPDATED IMAGE MAPPING */
+        .feature-card:nth-child(1)::before { background-image: url('https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=800'); } /* Audio */
+        .feature-card:nth-child(2)::before { background-image: url('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800'); } /* 4K Cam */
+        .feature-card:nth-child(3)::before { background-image: url('https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?q=80&w=800'); } /* Ready Aesthetics - FIXED */
+        .feature-card:nth-child(4)::before { background-image: url('https://images.unsplash.com/photo-1559131397-f94da358f7ca?q=80&w=800'); } /* Delivery */
+        .feature-card:nth-child(5)::before { background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800'); } /* Engineer */
+        .feature-card:nth-child(6)::before { background-image: url('https://images.unsplash.com/photo-1589903308904-1010c2294adc?q=80&w=800'); } /* Viral */
+
+        .feature-card:hover::before { opacity: 1; transform: scale(1); }
+        .feature-card:hover { border-color: var(--primary); }
+        .feature-card h3 { color: var(--primary); font-size: 1.5rem; margin-bottom: 15px; font-weight: 800; }
+        .feature-card p { color: var(--muted); font-size: 1rem; }
+
+        .faq-item { background: #080808; margin-bottom: 15px; border-radius: 20px; padding: 30px; cursor: pointer; border: 1px solid var(--border); }
+        .faq-item.active { border-color: var(--primary); }
+        .faq-q { font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+        .faq-a { max-height: 0; overflow: hidden; transition: 0.5s ease; color: var(--muted); }
+        .faq-item.active .faq-a { max-height: 100px; margin-top: 15px; }
+
+        .footer-cta { text-align: center; padding: 150px 0; }
+        .btn-outline { 
+            padding: 25px 60px; border: 2px solid var(--primary); color: var(--primary); 
+            text-decoration: none; border-radius: 100px; font-weight: 900; text-transform: uppercase;
+            display: inline-block; transition: 0.4s;
+        }
+        .btn-outline:hover { background: var(--primary); color: #fff; box-shadow: 0 0 50px rgba(36, 113, 247, 0.4); }
+
+        @media (max-width: 1000px) {
+            .hero-split { grid-template-columns: 1fr; }
+            .bento { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor"></div>
+    <div id="cursor-f"></div>
+
+    <nav class="container">
+        <div class="logo-box">
+            <div class="logo-icon"><img src="images/logo.png" alt="Logo"></div>
+            <div class="logo">CREOVATOR<span>.</span>STUDIO</div>
+        </div>
+        <div style="color: var(--grey); font-size: 0.7rem; font-weight: 800; letter-spacing: 2px;">BENGALURU • INDIA</div>
+    </nav>
+
+    <section class="hero container">
+        <div class="hero-split">
+            <div class="hero-left">
+                <div class="badge">Next-Gen Production</div>
+                <h1 class="scroll-reveal">Record Your Podcast <span>Without Headaches.</span></h1>
+                <p class="scroll-reveal" style="color: var(--muted); font-size: 1.2rem; margin-bottom: 40px; max-width: 600px;">
+                    Creovator Studio is a pro-grade space designed for high-impact creators. We handle the technical chaos—you bring the voice.
+                </p>
+                <div class="scroll-reveal"><a href="javascript:void(0)" onclick="scrollToForm()" class="btn-outline">Schedule a Studio Visit</a></div>
+            </div>
+
+            <div class="hero-right scroll-reveal" id="booking-anchor">
+                <div id="booking-form">
+                    <h2 style="margin-bottom: 25px;">Let's Talk</h2>
+                    <form action="https://api.web3forms.com/submit" method="POST">
+                        <input type="hidden" name="access_key" value="0c7c57e3-52e7-4722-b8b9-10c4507f923c">
+                        <div class="form-grid">
+                            <input type="text" name="name" placeholder="Full Name" required style="grid-column: span 2;">
+                            <input type="email" name="email" placeholder="Email" required>
+                            <input type="tel" name="phone" placeholder="Phone" required>
+                            <select name="type" required><option disabled selected>Project Type</option><option>Podcast</option><option>YouTube</option><option>Course</option></select>
+                            <select name="time" required><option disabled selected>Time</option><option>Morning</option><option>Afternoon</option><option>Full Day</option></select>
+                            <textarea name="note" placeholder="Tell us about your project..." style="grid-column: span 2;" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn-main">Secure Your Slot</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section container">
+        <div style="text-align: center; margin-bottom: 80px;" class="scroll-reveal">
+            <span class="badge" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">Features</span>
+            <h2 style="font-size: 3.5rem; font-weight: 900;">A Studio Crafted For Growth.</h2>
+        </div>
+        <div class="bento">
+            <div class="feature-card scroll-reveal"><h3>Crystal Audio</h3><p>Broadcast-grade Shure SM7B mics for that deep, professional sound.</p></div>
+            <div class="feature-card scroll-reveal"><h3>4K Multi-Cam</h3><p>Sony cinematic cameras capturing every reaction in high definition.</p></div>
+            <div class="feature-card scroll-reveal"><h3>Ready Aesthetics</h3><p>Change set colors with a single click to match your brand vibe.</p></div>
+            <div class="feature-card scroll-reveal"><h3>Same-Day Delivery</h3><p>Walk out with your raw files immediately. No waiting.</p></div>
+            <div class="feature-card scroll-reveal"><h3>Engineer On-Site</h3><p>We handle the levels and lighting so you can stay in the zone.</p></div>
+            <div class="feature-card scroll-reveal"><h3>Viral Editing</h3><p>Optional add-on to turn your episode into 10+ viral Reels/Shorts.</p></div>
+        </div>
+    </section>
+
+    <section class="section container">
+        <div class="faq-box scroll-reveal">
+            <h2 style="margin-bottom: 40px; text-align: center; font-size: 2.5rem;">FAQs</h2>
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-q">Where are you located? <span>+</span></div>
+                <div class="faq-a">We are located in Central Bengaluru. Detailed directions sent upon booking.</div>
+            </div>
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-q">Do I need to bring SD cards? <span>+</span></div>
+                <div class="faq-a">No, we provide high-speed storage and transfer the files to your drive immediately.</div>
+            </div>
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-q">Can I bring guests? <span>+</span></div>
+                <div class="faq-a">Our standard setup supports up to 4 microphones and 4 people comfortably.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="footer-cta scroll-reveal">
+        <div class="container">
+            <h2 style="font-size: clamp(2rem, 5vw, 4rem); margin-bottom: 40px; font-weight: 900;">Ready to elevate your voice?</h2>
+            <a href="javascript:void(0)" onclick="scrollToForm()" class="btn-outline">Book Your Session</a>
+        </div>
+    </section>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+        const cursor = document.getElementById('cursor');
+        const follower = document.getElementById('cursor-f');
+        window.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0 });
+            gsap.to(follower, { x: e.clientX - 17, y: e.clientY - 17, duration: 0.15 });
+        });
+
+        gsap.utils.toArray('.scroll-reveal').forEach(el => {
+            gsap.from(el, {
+                scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" },
+                y: 60, opacity: 0, filter: "blur(8px)", duration: 1.2, ease: "power4.out"
+            });
+        });
+
+        function scrollToForm() {
+            gsap.to(window, { duration: 1.5, scrollTo: "#booking-anchor", ease: "power4.inOut" });
+        }
+    </script>
+</body>
+</html>
